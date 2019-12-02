@@ -34,7 +34,7 @@ def Local_Spin_Ops(TwoTimesSpin):
 
 def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin):
 	spsite, smsite, szsite = Local_Spin_Ops(int(2*spin + 1.e-6))
-	d=int(2*spin + 1 + 1.0e-6)
+	d=int(2*spin + 1 + 1.0e-6)  # Size of the free spin Hilbert space 
 	
 	# Term L-site1
 	for ml in range(m):      # Left block 
@@ -47,13 +47,24 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin):
 							mrprime=mr  # Delta function
 							srprime=sr  # Delta function    
 							cind2=mlprime*m*d*d + slprime*d*m + mrprime*d + srprime
-							H[cind1,cind2]+=sp[ml,mlprime]*smsite[sl,slprime]
-							H[cind1,cind2]+=sm[ml,mlprime]*spsite[sl,slprime]
+							H[cind1,cind2]+=0.5*sp[ml,mlprime]*smsite[sl,slprime]
+							H[cind1,cind2]+=0.5*sm[ml,mlprime]*spsite[sl,slprime]
 							H[cind1,cind2]+=sz[ml,mlprime]*szsite[sl,slprime]
 	
 	# Term site1-site2
-				cind1=
-				H[cind1,cind2]+=
+	for sl in range(d):      # Left spin  
+		for slprime in range(d): 
+			for sr in range(d):  # Right spin
+				for srprime in range(d): 
+					for ml in range(m):
+						for mr in range(m): 
+							cind1=ml*m*d*d + sl*d*m + mr*d + sr
+							mlprime=ml  # Delta function
+							mrprime=mr # Delta function    
+							cind2=mlprime*m*d*d + slprime*d*m + mrprime*d + srprime
+							H[cind1,cind2]+=0.5*spsite[sl,slprime]*smsite[sr,srprime]
+							H[cind1,cind2]+=0.5*smsite[sl,slprime]*spsite[sr,srprime]
+							H[cind1,cind2]+=szsite[sl,slprime]*szsite[sr,srprime]
 	
 	# Term site2-R
 	for mr in range(m):      # Right block 
@@ -66,18 +77,33 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin):
 							mlprime=ml  # Delta function
 							slprime=sl  # Delta function    
 							cind2=mlprime*m*d*d + slprime*d*m + mrprime*d + srprime
-							H[cind1,cind2]+=sp[mr,mrprime]*smsite[sr,srprime]
-							H[cind1,cind2]+=sm[mr,mrprime]*spsite[sr,srprime]
+							H[cind1,cind2]+=0.5*sp[mr,mrprime]*smsite[sr,srprime]
+							H[cind1,cind2]+=0.5*sm[mr,mrprime]*spsite[sr,srprime]
 							H[cind1,cind2]+=sz[mr,mrprime]*szsite[sr,srprime]
 
 	return H
 ############################################################################
 
-def get_gs_of_superblock_H_and_make_its_dm(H):
+def get_gs_of_superblock_H_and_make_its_dm(m,spin,H):
 	# print GS and Excited state energy
+	d=int(2*spin + 1 + 1.0e-6)  # Size of the free spin Hilbert space 
 	eigs,vecs=N.linalg.eigh(H) # Doing full diag here, should be replaced by Lanczos
-
-	return eigs[0],eigs[1]
+	gs=vecs[:,0] # Gets the zeroth column which is the ground state
+	dm=N.zeros((m*d,m*d),dtype=float)
+	
+	for ml in range(m):
+		for sl in range(d):
+			ind1=ml*d + sl
+			for mlprime in range(m):
+				for slprime in range(d):
+					ind2=mlprime*d + slprime
+					for mr in range(m):
+						for sr in range(d):
+							cind1=ml*m*d*d + sl*d*m + mr*d + sr
+							cind2=mlprime*m*d*d + slprime*d*m + mr*d + sr
+							dm[ind1,ind2]+=gs[cind1]*gs[cind2]
+	
+	return eigs[0],eigs[1],dm
 
 ############################################################################
 def diagonalize_dm_truncate_and_find_new_spin_matrices(dm,maxm):		
@@ -101,5 +127,5 @@ sp, sm, sz = Local_Spin_Ops(int(2*0.5 + 1.e-6))
 # Do DMRG
 for i in range(niter):
 	H=make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin)	
-	e0,e1,dm=get_gs_of_superblock_H_and_make_its_dm(H)
+	e0,e1,dm=get_gs_of_superblock_H_and_make_its_dm(m,spin,H)
 	m,sp,sm,sz=diagonalize_dm_truncate_and_find_new_spin_matrices(dm,maxm)
