@@ -4,6 +4,14 @@ import sys
 import pylab
 import copy 
 
+#############################################################################
+# This DMRG code is for educational purposes only.
+# It was written by Nitin Kaushal (U Tennessee and IISER K) and Hitesh Changlani (FSU and MagLab) 
+# on December 2,2019 as a demonstration for the main ideas
+# of the original DMRG algorithm by Steve White (PRL 1992)
+# The code does DMRG for an open spin chain - edge spin 1/2 are placed irrespective
+# of the bulk spin specified by the user 
+
 ############################################################################
 def Local_Spin_Ops(TwoTimesSpin):
 
