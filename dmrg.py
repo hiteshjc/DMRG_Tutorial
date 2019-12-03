@@ -260,13 +260,13 @@ H_rb=N.zeros( (m, m), dtype=float )
 ########################################################
 
 # Do DMRG
-print "#iterno   SytemLength  E0  E1  m_kept  Truncerror"
+print "#iterno   SytemLength  E0  E1  m_kept  Truncerror  E0/site  Gap=E1-E0"
 for i in range(niter):
 	H,H_system,H_enviroment=make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb)	
 	e0,e1,dm=get_gs_of_superblock_H_and_make_its_dm(m,spin,H)
         print (i),(4+2*i),(e0),(e1),
 	m_old=m
 	m,truncerror,sp,sm,sz,H_lb,H_rb=diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system)
-        print (m),(truncerror)
+        print (m),(truncerror),((e0)/float(4+2*i)),(e1-e0)
         
         
