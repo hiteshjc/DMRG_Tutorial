@@ -1,16 +1,16 @@
 import numpy as N
-import scipy as S
+import scipy
 import sys
 import pylab
 import copy 
-
+import scipy.sparse.linalg
 #############################################################################
-# This DMRG code is for educational purposes only.
+# This python infinite DMRG code is for educational purposes only.
 # It was written by Nitin Kaushal (U Tennessee and IISER K) and Hitesh Changlani (FSU and MagLab) 
-# on December 2,2019 as a demonstration for the main ideas
+# on December 2,2019 as a demonstration of the main ideas
 # of the original DMRG algorithm by Steve White (PRL 1992)
-# The code does DMRG for an open spin chain - edge spin 1/2 are placed irrespective
-# of the bulk spin specified by the user 
+# The code does DMRG for an open spin chain - edge spin 1/2's are placed irrespective
+# of the bulk spin type specified by the user 
 
 ############################################################################
 def Local_Spin_Ops(TwoTimesSpin):
@@ -171,10 +171,14 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb):
 def get_gs_of_superblock_H_and_make_its_dm(m,spin,H):
 	# print GS and Excited state energy
 	d=int(2*spin + 1 + 1.0e-6)  # Size of the free spin Hilbert space 
-	eigs,vecs=N.linalg.eigh(H) # Doing full diag here, should be replaced by Lanczos
+	hilbert=(H.shape)[0]
+	#print hilbert
+	eigs,vecs=N.linalg.eigh(H) # Doing full diag here
+	#eigs,vecs=scipy.sparse.linalg.eigs(H,k=min(100,hilbert-2)) # Doing sparse diag here, you can invoke this to make your code faster for larger "m"
+								    # might have to run with higher "k" to converge the lowest two states
 	gs=vecs[:,0] # Gets the zeroth column which is the ground state
         exc1=vecs[:,1] #1st excited state
-        weight=1.0 # weight=1.0 will only use GS vector i.e. pure ensemble, weight<1 corresponds to mixed ensemble of GS and 1st Excited state
+        weight=0.5 # weight=1.0 will only use GS vector i.e. pure ensemble, weight<1 corresponds to mixed ensemble of GS and 1st Excited state
 
 	dm=N.zeros((m*d,m*d),dtype=float)
 	
@@ -192,7 +196,7 @@ def get_gs_of_superblock_H_and_make_its_dm(m,spin,H):
 							cind2=mlprime*m*d*d + slprime*d*m + mr*d + sr
 							dm[ind1,ind2]+=weight*gs[cind1]*gs[cind2] + (1.0 - weight)*exc1[cind1]*exc1[cind2]
 	
-	return eigs[0],eigs[1],dm
+	return eigs[0].real,eigs[1].real,dm
 
 ############################################################################
 def diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system):		
@@ -268,13 +272,13 @@ H_rb=N.zeros( (m, m), dtype=float )
 ########################################################
 
 # Do DMRG
-print "#iterno   SytemLength  E0  E1  m_kept  Truncerror  E0/site  Gap=E1-E0"
+print "#iterno   SysLength        E0                  E1               m_kept        Truncerror           E0/site                Gap=E1-E0"
 for i in range(niter):
 	H,H_system,H_enviroment=make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb)	
 	e0,e1,dm=get_gs_of_superblock_H_and_make_its_dm(m,spin,H)
-        print (i),(4+2*i),(e0),(e1),
+        print '{:5d}  {:5d}    {:+22.15f}  {:+22.15f}'.format((i),(4+2*i),(e0),(e1)),
 	m_old=m
 	m,truncerror,sp,sm,sz,H_lb,H_rb=diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system)
-        print (m),(truncerror),((e0)/float(4+2*i)),(e1-e0)
+        print '{:5d} {:22.15f}  {:+22.15f}  {:+22.15f}'.format((m),(truncerror),((e0)/float(4+2*i)),(e1-e0))
         
         
