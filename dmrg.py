@@ -136,7 +136,7 @@ def get_gs_of_superblock_H_and_make_its_dm(m,spin,H):
 	hilbert=(H.shape)[0]
 	#print hilbert
 	eigs,vecs=N.linalg.eigh(H) # Doing full diag here
-	#eigs,vecs=scipy.sparse.linalg.eigs(H,k=min(100,hilbert-2)) # Doing sparse diag here, you can invoke this to make your code faster for larger "m"
+	#eigs,vecs=scipy.sparse.linalg.eigsh(H,k=min(200,hilbert-2)) # Doing sparse diag here, you can invoke this to make your code faster for larger "m"
 								    # might have to run with higher "k" to converge the lowest two states
 	gs=vecs[:,0] # Gets the zeroth column which is the ground state
         exc1=vecs[:,1] #1st excited state
