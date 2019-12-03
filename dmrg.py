@@ -2,6 +2,7 @@ import numpy as N
 import scipy as S
 import sys
 import pylab
+import copy 
 
 ############################################################################
 def Local_Spin_Ops(TwoTimesSpin):
@@ -152,11 +153,9 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb):
                                         H_system[cind1,cind2]+=0.5*sm[ml,mlprime]*spsite[sl,slprime]
                                         H_system[cind1,cind2]+=sz[ml,mlprime]*szsite[sl,slprime]
 
-        H_enviroment=H_system
+        H_enviroment=copy.deepcopy(H_system)
         ###########################################################################################################
         
-
-
 
         return H, H_system, H_enviroment
 ############################################################################
@@ -204,7 +203,7 @@ def diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system):
 
 
 
-        #<ml|O|mlprime>=\sum <ml|i1> <i1|O|i2> <i2|mlprime> 
+        #<ml|O|mlprime>=\sum <ml|ml_old sl > <s|O|sl prime> <ml_old sprime|mlprime> 
         for ml in range(m):
                 for mlprime in range(m):
                         for ml_old in range(m_old):
@@ -218,20 +217,23 @@ def diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system):
                                                 sm[ml,mlprime]+=vecs_dm[ind1,m_old*d-1-ml]*vecs_dm[ind2,m_old*d-1-mlprime]*smsite[sl,slprime]
 
            
+        #<ml|H|mlprime>=\sum <ml|ml_old sl > <ml_old sl |H| ml_oldprime sl prime> <ml_oldprime sprime|mlprime> 
         for ml in range(m):
                 for mlprime in range(m):
                         for ml_old in range(m_old):
                                 for mlprime_old in range(m_old):
                                         for sl in range(d):
-                                                slprime=sl
-                                                ind1=ml_old*d + sl
-                                                ind2=mlprime_old*d + slprime
-                                                H_lb[ml,mlprime]+=vecs_dm[ind1,m_old*d-1-ml]*vecs_dm[ind2,m_old*d-1-mlprime]*H_system[ml_old,mlprime_old]
+                                        	for slprime in range(d):
+							#slprime=sl
+							ind1=ml_old*d + sl
+							ind2=mlprime_old*d + slprime
+							#H_lb[ml,mlprime]+=vecs_dm[ind1,m_old*d-1-ml]*vecs_dm[ind2,m_old*d-1-mlprime]*H_system[ml_old,mlprime_old]
+							H_lb[ml,mlprime]+=vecs_dm[ind1,m_old*d-1-ml]*vecs_dm[ind2,m_old*d-1-mlprime]*H_system[ind1,ind2]
 
 
 
 
-        H_rb=H_lb #Reflection Symmetry
+        H_rb=copy.deepcopy(H_lb) #Reflection Symmetry
 
         truncerror=1.0
         for n in range(m):
@@ -263,7 +265,8 @@ for i in range(niter):
 	H,H_system,H_enviroment=make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb)	
 	e0,e1,dm=get_gs_of_superblock_H_and_make_its_dm(m,spin,H)
         print (i),(4+2*i),(e0),(e1),
-	m,truncerror,sp,sm,sz,H_lb,H_rb=diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m,H_system)
+	m_old=m
+	m,truncerror,sp,sm,sz,H_lb,H_rb=diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system)
         print (m),(truncerror)
         
         
