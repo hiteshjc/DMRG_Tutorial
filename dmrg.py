@@ -69,35 +69,10 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb):
                                                 H[cind1,cind2]+=H_lb[ml,mlprime]
                                                     
 
-        # Term RightBlock = (Iden)mxm (X) (Iden)dxd (X) (H_rb)mxm (X) (Iden)dxd
-        for mr in range(m):      # Right block 
-                for mrprime in range(m):
-                        for sr in range(d): # Right spin
-                                srprime=sr
-                                for ml in range(m):
-                                        for sl in range(d):
-                                                cind1=ml*m*d*d + sl*d*m + mr*d + sr
-                                                mlprime=ml  # Delta function
-                                                slprime=sl  # Delta function    
-                                                cind2=mlprime*m*d*d + slprime*d*m + mrprime*d + srprime
-                                                H[cind1,cind2]+=H_rb[mr,mrprime] #Reflection Symmetry can be used by using H_lb instead of H_rb
-
+        # Term RightBlock = (Iden)mxm (X) (Iden)dxd (X) (H_rb)mxm (X) (Iden)dxd - STUDENT NEEDS TO FILL
 
 	
-	# Term L-site1 = (Opr1)mxm (X) (Opr2)dxd (X) (Iden)mxm (X) (Iden)dxd 
-	for ml in range(m):      # Left block 
-		for mlprime in range(m): 
-			for sl in range(d): # site1 
-				for slprime in range(d):
-                                        for sr in range(d): #site2
-					        for mr in range(m): # Right block 
-							cind1=ml*m*d*d + sl*d*m + mr*d + sr
-							mrprime=mr  # Delta function
-							srprime=sr  # Delta function    
-							cind2=mlprime*m*d*d + slprime*d*m + mrprime*d + srprime
-							H[cind1,cind2]+=0.5*sp[ml,mlprime]*smsite[sl,slprime]
-							H[cind1,cind2]+=0.5*sm[ml,mlprime]*spsite[sl,slprime]
-							H[cind1,cind2]+=sz[ml,mlprime]*szsite[sl,slprime]
+	# Term L-site1 = (Opr1)mxm (X) (Opr2)dxd (X) (Iden)mxm (X) (Iden)dxd  - STUDENT NEEDS TO FILL
 	
 	# Term site1-site2 = (Iden)mxm (X) (Opr1)dxd (X) (Iden)mxm (X) (Opr2)dxd 
 	for sl in range(d):      # Left spin  
@@ -114,23 +89,7 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb):
 							H[cind1,cind2]+=0.5*smsite[sl,slprime]*spsite[sr,srprime]
 							H[cind1,cind2]+=szsite[sl,slprime]*szsite[sr,srprime]
 	
-	# Term site2-R = (Iden)mxm (X) (Iden)dxd (X) (Opr2)mxm (X) (Opr1)dxd
-	for mr in range(m):      # Right block 
-		for mrprime in range(m): 
-			for sr in range(d): # Right spin
-				for srprime in range(d): 
-					for ml in range(m):
-						for sl in range(d): 
-							cind1=ml*m*d*d + sl*d*m + mr*d + sr
-							mlprime=ml  # Delta function
-							slprime=sl  # Delta function    
-							cind2=mlprime*m*d*d + slprime*d*m + mrprime*d + srprime
-
-                                                        #Reflection symmetry is used here
-							H[cind1,cind2]+=0.5*sp[mr,mrprime]*smsite[sr,srprime] 
-							H[cind1,cind2]+=0.5*sm[mr,mrprime]*spsite[sr,srprime]
-							H[cind1,cind2]+=sz[mr,mrprime]*szsite[sr,srprime]
-
+	# Term site2-R = (Iden)mxm (X) (Iden)dxd (X) (Opr2)mxm (X) (Opr1)dxd - STUDENT NEEDS to FILL
 
 
 
