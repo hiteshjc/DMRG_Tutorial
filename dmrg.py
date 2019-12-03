@@ -12,6 +12,9 @@ import scipy.sparse.linalg
 # The code does DMRG for an open spin chain - edge spin 1/2's are placed irrespective
 # of the bulk spin type specified by the user 
 
+# This is the student version - it is INCOMPLETE and needs to be filled in by the student 
+# to get the correct result
+
 ############################################################################
 def Local_Spin_Ops(TwoTimesSpin):
 
