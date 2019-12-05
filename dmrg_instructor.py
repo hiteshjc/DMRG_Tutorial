@@ -266,13 +266,31 @@ H_rb=N.zeros( (m, m), dtype=float )
 ########################################################
 
 # Do DMRG
+gaps=[]
+e0s=[]
+invsizes=[]
 print("#iterno   SysLength        E0                  E1               m_kept        Truncerror           E0/site                Gap=E1-E0")
 for i in range(niter):
 	H,H_system,H_enviroment=make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb)	
 	e0,e1,dm=get_gs_of_superblock_H_and_make_its_dm(m,spin,H)
+	e0s.append(e0/float(4+2*i))
+	gaps.append(e1-e0)
+	invsizes.append(1.0/float(4+2*i))
 	print('{:5d}  {:5d}    {:+22.15f}  {:+22.15f}'.format((i),(4+2*i),(e0),(e1)),end='')
 	m_old=m
 	m,truncerror,sp,sm,sz,H_lb,H_rb=diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system)
 	print('{:5d} {:22.15f}  {:+22.15f}  {:+22.15f}'.format((m),(truncerror),((e0)/float(4+2*i)),(e1-e0)))
         
-        
+pylab.figure(1)
+pylab.title("GS energy per site for the S="+str(spin)+" chain for m = "+str(maxm))
+pylab.ylabel("Energy/Site")
+pylab.xlabel("1/Size")
+pylab.plot(invsizes,e0s,marker="o",markersize=10)
+
+pylab.figure(2)
+pylab.title("Energy gap for the S="+str(spin)+" chain for m = "+str(maxm))
+pylab.ylabel("Gap")
+pylab.xlabel("1/Size")
+pylab.ylim([0,1.0])
+pylab.plot(invsizes,gaps,marker="o",markersize=10)
+pylab.show() 
