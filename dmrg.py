@@ -12,9 +12,6 @@ import scipy.sparse.linalg
 # The code does DMRG for an open spin chain - edge spin 1/2's are placed irrespective
 # of the bulk spin type specified by the user 
 
-# This is the student version - it is INCOMPLETE and needs to be filled in by the student 
-# to get the correct result
-
 ############################################################################
 def Local_Spin_Ops(TwoTimesSpin):
 
@@ -52,14 +49,14 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb):
         #ENVIROMENT = [site2-R] + [RIGHTBLOCK]
         #[SITE1], and [SITE2] are fresh sites
 
-        d=int(2*spin + 1 + 1.0e-6)  # Size of the free spin Hilbert space 
-        H=N.zeros( (m*d*d*m, m*d*d*m), dtype=float )
+	d=int(2*spin + 1 + 1.0e-6)  # Size of the free spin Hilbert space 
+	H=N.zeros( (m*d*d*m, m*d*d*m), dtype=float )
 
-        spsite, smsite, szsite = Local_Spin_Ops(int(2*spin + 1.e-6))
+	spsite, smsite, szsite = Local_Spin_Ops(int(2*spin + 1.e-6))
 
 
         # Term Leftblock = (H_lb)mxm (X) (Iden)dxd (X) (Iden)mxm (X) (Iden)dxd ; (X) is direct product 
-        for ml in range(m):      # Left block
+	for ml in range(m):      # Left block
                 for mlprime in range(m):
                         for sl in range(d): # site1
                                 slprime=sl
@@ -72,10 +69,11 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb):
                                                 H[cind1,cind2]+=H_lb[ml,mlprime]
                                                     
 
-        # Term RightBlock = (Iden)mxm (X) (Iden)dxd (X) (H_rb)mxm (X) (Iden)dxd - STUDENT NEEDS TO FILL
+        # Term RightBlock = (Iden)mxm (X) (Iden)dxd (X) (H_rb)mxm (X) (Iden)dxd - STUDENT TO FILL
+	
 
 	
-	# Term L-site1 = (Opr1)mxm (X) (Opr2)dxd (X) (Iden)mxm (X) (Iden)dxd  - STUDENT NEEDS TO FILL
+	# Term L-site1 = (Opr1)mxm (X) (Opr2)dxd (X) (Iden)mxm (X) (Iden)dxd - STUDENT TO FILL 
 	
 	# Term site1-site2 = (Iden)mxm (X) (Opr1)dxd (X) (Iden)mxm (X) (Opr2)dxd 
 	for sl in range(d):      # Left spin  
@@ -92,18 +90,18 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb):
 							H[cind1,cind2]+=0.5*smsite[sl,slprime]*spsite[sr,srprime]
 							H[cind1,cind2]+=szsite[sl,slprime]*szsite[sr,srprime]
 	
-	# Term site2-R = (Iden)mxm (X) (Iden)dxd (X) (Opr2)mxm (X) (Opr1)dxd - STUDENT NEEDS to FILL
+	# Term site2-R = (Iden)mxm (X) (Iden)dxd (X) (Opr2)mxm (X) (Opr1)dxd - STUDENT TO FILL
 
 
 
         #Creating System, Enviroment Hamil--##############################################################################
 
-        H_system=N.zeros( (m*d, m*d), dtype=float )
+	H_system=N.zeros( (m*d, m*d), dtype=float )
 
         # Term Leftblock = (H_lb)mxm (X) (Iden)dxd
-        for ml in range(m):      # Left block
-                for mlprime in range(m):
-                        for sl in range(d): # site1
+	for ml in range(m):      # Left block
+		for mlprime in range(m):
+			for sl in range(d): # site1
                                 slprime=sl
                                 cind1=ml*d + sl
                                 cind2=mlprime*d + slprime
@@ -113,21 +111,21 @@ def make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb):
 
 
         # Term L-site1 = (Opr1)mxm (X) (Opr2)dxd
-        for ml in range(m):      # Left block
-                for mlprime in range(m):
-                        for sl in range(d): # site1
-                                for slprime in range(d):
+	for ml in range(m):      # Left block
+		for mlprime in range(m):
+			for sl in range(d): # site1
+				for slprime in range(d):
                                         cind1=ml*d + sl
                                         cind2=mlprime*d + slprime
                                         H_system[cind1,cind2]+=0.5*sp[ml,mlprime]*smsite[sl,slprime]
                                         H_system[cind1,cind2]+=0.5*sm[ml,mlprime]*spsite[sl,slprime]
                                         H_system[cind1,cind2]+=sz[ml,mlprime]*szsite[sl,slprime]
 
-        H_enviroment=copy.deepcopy(H_system)
-        ###########################################################################################################
+	H_enviroment=copy.deepcopy(H_system)
+	###########################################################################################################
         
 
-        return H, H_system, H_enviroment
+	return H, H_system, H_enviroment
 ############################################################################
 
 def get_gs_of_superblock_H_and_make_its_dm(m,spin,H):
@@ -136,11 +134,11 @@ def get_gs_of_superblock_H_and_make_its_dm(m,spin,H):
 	hilbert=(H.shape)[0]
 	#print hilbert
 	eigs,vecs=N.linalg.eigh(H) # Doing full diag here
-	#eigs,vecs=scipy.sparse.linalg.eigsh(H,k=min(200,hilbert-2)) # Doing sparse diag here, you can invoke this to make your code faster for larger "m"
+	#eigs,vecs=scipy.sparse.linalg.eigsh(H,k=min(50,hilbert-2)) # Doing sparse diag here, you can invoke this to make your code faster for larger "m"
 								    # might have to run with higher "k" to converge the lowest two states
 	gs=vecs[:,0] # Gets the zeroth column which is the ground state
-        exc1=vecs[:,1] #1st excited state
-        weight=0.5 # weight=1.0 will only use GS vector i.e. pure ensemble, weight<1 corresponds to mixed ensemble of GS and 1st Excited state
+	exc1=vecs[:,1] #1st excited state
+	weight=0.5 # weight=1.0 will only use GS vector i.e. pure ensemble, weight<1 corresponds to mixed ensemble of GS and 1st Excited state
 
 	dm=N.zeros((m*d,m*d),dtype=float)
 	
@@ -163,22 +161,20 @@ def get_gs_of_superblock_H_and_make_its_dm(m,spin,H):
 ############################################################################
 def diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system):		
 
-        eigs_dm,vecs_dm=N.linalg.eigh(dm) #Eigenvalues are in increasing order
-       #print (eigs_dm)
+	eigs_dm,vecs_dm=N.linalg.eigh(dm) #Eigenvalues are in increasing order
+	#print (eigs_dm)
 
-        spsite, smsite, szsite = Local_Spin_Ops(int(2*spin + 1.e-6))
-        d=int(2*spin + 1 + 1.0e-6)
-        m=min(maxm,d*m_old) #Exact until maxm>d*m_old, m is the new no. of states kept
-
-        sz=N.zeros( (m, m), dtype=float )
-        sp=N.zeros( (m, m), dtype=float )
-        sm=N.zeros( (m, m), dtype=float )
-        H_lb=N.zeros( (m, m), dtype=float )
-
-
+	spsite, smsite, szsite = Local_Spin_Ops(int(2*spin + 1.e-6))
+	d=int(2*spin + 1 + 1.0e-6)
+	m=min(maxm,d*m_old) #Exact until maxm>d*m_old, m is the new no. of states kept
+	
+	sz=N.zeros( (m, m), dtype=float )
+	sp=N.zeros( (m, m), dtype=float )
+	sm=N.zeros( (m, m), dtype=float )
+	H_lb=N.zeros( (m, m), dtype=float )
 
         #<ml|O|mlprime>=\sum <ml|ml_old sl > <s|O|sl prime> <ml_old sprime|mlprime> 
-        for ml in range(m):
+	for ml in range(m):
                 for mlprime in range(m):
                         for ml_old in range(m_old):
                                 for sl in range(d):
@@ -190,28 +186,24 @@ def diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system):
                                                 sp[ml,mlprime]+=vecs_dm[ind1,m_old*d-1-ml]*vecs_dm[ind2,m_old*d-1-mlprime]*spsite[sl,slprime]
                                                 sm[ml,mlprime]+=vecs_dm[ind1,m_old*d-1-ml]*vecs_dm[ind2,m_old*d-1-mlprime]*smsite[sl,slprime]
 
-           
-        #<ml|H|mlprime>=\sum <ml|ml_old sl > <ml_old sl |H| ml_oldprime sl prime> <ml_oldprime sprime|mlprime> 
-        for ml in range(m):
-                for mlprime in range(m):
-                        for ml_old in range(m_old):
-                                for mlprime_old in range(m_old):
-                                        for sl in range(d):
-                                        	for slprime in range(d):
+	#<ml|H|mlprime>=\sum <ml|ml_old sl > <ml_old sl |H| ml_oldprime sl prime> <ml_oldprime sprime|mlprime> 
+	for ml in range(m):
+		for mlprime in range(m):
+			for ml_old in range(m_old):
+				for mlprime_old in range(m_old):
+					for sl in range(d):
+						for slprime in range(d):
 							#slprime=sl
 							ind1=ml_old*d + sl
 							ind2=mlprime_old*d + slprime
 							#H_lb[ml,mlprime]+=vecs_dm[ind1,m_old*d-1-ml]*vecs_dm[ind2,m_old*d-1-mlprime]*H_system[ml_old,mlprime_old]
 							H_lb[ml,mlprime]+=vecs_dm[ind1,m_old*d-1-ml]*vecs_dm[ind2,m_old*d-1-mlprime]*H_system[ind1,ind2]
 
+	H_rb=copy.deepcopy(H_lb) #Reflection Symmetry
 
-
-
-        H_rb=copy.deepcopy(H_lb) #Reflection Symmetry
-
-        truncerror=1.0
-        for n in range(m):
-                truncerror-=eigs_dm[m_old*d-1-n]
+	truncerror=1.0
+	for n in range(m):
+		truncerror-=eigs_dm[m_old*d-1-n]
 
 	return m,truncerror,sp,sm,sz,H_lb,H_rb
 
@@ -234,13 +226,13 @@ H_rb=N.zeros( (m, m), dtype=float )
 ########################################################
 
 # Do DMRG
-print "#iterno   SysLength        E0                  E1               m_kept        Truncerror           E0/site                Gap=E1-E0"
+print("#iterno   SysLength        E0                  E1               m_kept        Truncerror           E0/site                Gap=E1-E0")
 for i in range(niter):
 	H,H_system,H_enviroment=make_ham_of_superblock_given_sp_sm_sz(m,sp,sm,sz,spin, H_lb, H_rb)	
 	e0,e1,dm=get_gs_of_superblock_H_and_make_its_dm(m,spin,H)
-        print '{:5d}  {:5d}    {:+22.15f}  {:+22.15f}'.format((i),(4+2*i),(e0),(e1)),
+	print('{:5d}  {:5d}    {:+22.15f}  {:+22.15f}'.format((i),(4+2*i),(e0),(e1)),end='')
 	m_old=m
 	m,truncerror,sp,sm,sz,H_lb,H_rb=diagonalize_dm_truncate_and_find_new_matrices(dm,maxm,m_old,H_system)
-        print '{:5d} {:22.15f}  {:+22.15f}  {:+22.15f}'.format((m),(truncerror),((e0)/float(4+2*i)),(e1-e0))
+	print('{:5d} {:22.15f}  {:+22.15f}  {:+22.15f}'.format((m),(truncerror),((e0)/float(4+2*i)),(e1-e0)))
         
         
